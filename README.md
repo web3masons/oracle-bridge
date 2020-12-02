@@ -2,6 +2,8 @@
 
 A proof of concept EVM to EVM cross-chain communication protocol using EVM Storage Proofs and Oracles.
 
+![Oracle Brdige Diagram](https://github.com/web3masons/oracle-bridge/blob/master/diagram.png)
+
 ## Overview
 
 EVM Storage proofs enable a contract to prove the presence of a specific peice of data on another EVM environment. Attempts have been made to use this to create chain-to-chain communication, but the limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
