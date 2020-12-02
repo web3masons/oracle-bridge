@@ -34,7 +34,7 @@ Again, this is the most basic example and there is room for many improvements an
 - Dynamic confirmation times based on various metrics (including amount)
 - Etc.
 
-## Testing
+## Testing
 
 Check out `./test/oracle-bridge.js` for an example test run through. Run it with `npm run test`.
 
