@@ -6,25 +6,25 @@ A proof of concept EVM to EVM cross-chain communication protocol using EVM Stora
 
 ## Overview
 
-[EVM Storage Proofs](https://github.com/aragon/evm-storage-proofs) enable a contract to prove the presence of a specific peice of data on another EVM environment. Attempts have been made to use this to create chain-to-chain communication, but one limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
+[EVM Storage Proofs](https://github.com/aragon/evm-storage-proofs) enable a contract to prove the presence of a specific peice of data within another EVM environment. Attempts have been made to use this to enable chain-to-chain communication, but one limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
 
-Instead of verifying proof of work trustlessly within a contract, the Oracle Brdige approach uses an oracle (or collection of oracles) to periodically report the block number and block hash of remote chains, which can then be used to verify the state of the other chain using using EVM storage proofs.
+Instead of verifying proof of work trustlessly within a contract, the Oracle Bridge approach uses an oracle (or collection of oracles) to periodically report the block number and block hash of remote chains, which, in combination with a storage proof, can be used to validate the state of a remote chain.
 
-Contracts can then use this proof to create novel schemes communicating between chains. In this example, we create a token bridge that issues "wrapped" tokens that can be redeemed with strong guaruntees. Let's dive deeper.
+Contracts can then implement novel schemes for communicating between chains. In this example, we create a token bridge that issues "wrapped" tokens that can be redeemed back to the original asset with strong guaruntees. Let's dive deeper.
 
-In this example, let's imagine we want to send ETC to ETH mainnet. A basic implementaiton of the system is as follows. The numbers provided are flexible and are for illustrative purposes only.
+Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking it up on ETC and issuing an IOU 'wrapped token' on ETH that can be trustlessly redeemed for ETC. A basic implementaiton of the system is as follows (the numbers provided are flexible and are for illustrative purposes only):
 
-1. User deposits 1 ETC into the `ETC-token-bridge` contract (on the Ethereum Classic chain)
-1. The user immediately creates a Storage Proof showing that the ETC has been deposited on this block
-1. Every 100 blocks, an oracle (or group of oracles) reports the block hash of ETC to `ETH-token-bridge` on Ethereum Mainnet
-1. After 1000 confirmation blocks have pased on ETC, the user passes the Storage Proof created earlier to the the `ETH-token-bridge` contract (on the Etheruem Mainnet chain)
-1. The contract verifies that the block header matches the reported header from the oracles and issues the amount of Wrapped ETC on ETH Mainnet
+1. User deposits 1 ETC into the `ETC-OracleBridge` contract (on the Ethereum Classic chain)
+1. The user creates a Storage Proof proving the ETC has been deposited on this block
+1. Every 100 blocks, an oracle (or group of oracles) reports the block hash of ETC to `ETH-OracleBridge` on Ethereum Mainnet
+1. After 1000 confirmation blocks have pased on ETC, the user passes the Storage Proof created earlier to the the `ETH-OracleBridge` contract (on the Etheruem Mainnet chain)
+1. The contract verifies that the Storage Proof is part of a black that matches the block header reported by the oracle and issues the amount of Wrapped ETC on ETH Mainnet
 1. The Wrapped ETC can be traded freely as a regular ERC20 token; it remains locked on the ETC chain
 1. When the time comes to redeem the Wrapped ETC to ETC, the process happens in reverse;
-1. The 'deposits' (burns) the Wrapped ETC to the `ETH-token-bridge` contract
+1. The 'deposits' (burns) the Wrapped ETC to the `ETH-OracleBridge` contract
 1. The user creates a Storage Proof of the deposit at this particular block
-1. Every 100 blocks, an oracle reports the block hash of ETH to `ETC-token-bridge` (on Etheruem Classic)
-1. After 1000 confimations, the user can relay the Storage Proof to the `ETC-token-bridge` contract, which is verified by the contract and ETC can be redeemed by the user
+1. Every 100 blocks, an oracle reports the block hash of ETH to `ETC-OracleBridge` (on Etheruem Classic)
+1. After 1000 confimations, the user can relay the Storage Proof to the `ETC-OracleBridge` contract, which is verified by the contract and ETC can be redeemed by the user
 
 A basic contract set, test suite and ~~TODO: Web UI~~ is included in this repository to demonstrate the above system.
 
