@@ -8,13 +8,17 @@ A proof of concept EVM to EVM cross-chain communication protocol using EVM Stora
 
 [EVM Storage Proofs](https://github.com/aragon/evm-storage-proofs) enable a contract to prove the presence of a specific peice of data within another EVM environment. Attempts have been made to use this to enable chain-to-chain communication, but one limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
 
-Instead of verifying proof of work trustlessly within a contract, the Oracle Bridge approach uses an oracle (or collection of oracles) to periodically report the block number and block hash of remote chains, which, in combination with a storage proof, can be used to validate the state of a remote chain.
+Most other approaches use a fedaration of validators or custodians that micro-manage the minting and burning of wrapped contracts, whilst holding assets and ultimately having the ability collude and 'alleviate' the funds if they wish. They need to be online all the time and you trust them to not disappear one day.
 
-Contracts can then implement novel schemes for communicating between chains. In this example, we create a token bridge that issues "wrapped" tokens that can be redeemed back to the original asset with strong guaruntees. Let's dive deeper.
+Instead of verifying proof of work trustlessly within a contract, or relying on a specific validator set, the Oracle Bridge approach uses a generalised oracle (or collection of oracles, such as ChainLink) to simply periodically report the block number and block hash of remote chains.
 
-Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking it up on ETC and issuing an IOU 'wrapped token' on ETH that can be trustlessly\* redeemed for ETC. A basic implementaiton of the system is as follows (the numbers provided are flexible and are for illustrative purposes only):
+As these oracles are generalised data oracles and have strong disincentive to collude with each other (they have their own rhobust systems in place to ensure data integrity and are potentially reporting the same data for many different dapps), the Oracle Bridge appraoch presents a novel and improved security model for token bridges and chain-to-chain communication in general.
 
-\*the only trust assumption is that the majority of correctly oracles report true block headers, as opposed to a traditional bridge that has some kind of custody
+In combination with a storage proof, the block hash can be used to validate the state of a remote chain and contracts can implement cross chain systems such as the example in this repository.
+
+The following token bridge example issues "wrapped" tokens that can be redeemed back to the original asset with strong guaruntees.
+
+Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking it up on ETC and issuing an IOU 'wrapped token' on ETH that can be redeemed for ETC. A basic implementaiton of the system is as follows (the numbers provided are flexible and are for illustrative purposes only):
 
 1. User deposits 1 ETC into the `ETC-OracleBridge` contract (on the Ethereum Classic chain)
 1. The user creates a Storage Proof proving the ETC has been deposited on this block
