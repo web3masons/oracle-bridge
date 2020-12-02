@@ -12,7 +12,7 @@ contract OracleBridge {
     using RLP for bytes;
 
     mapping(bytes32 => bool) public actions; // keep this at the top to be slot 0
-    mapping(bytes32 => bool) public relayedActions; // keep this at the top to be slot 0
+    mapping(bytes32 => bool) public relayedActions;
     mapping(uint256 => bytes32) public checkpoints; // remote chain headers
 
     uint256 private constant STORAGE_SLOT_OFFSET = 0; // modify this if the actions slot changes
@@ -44,7 +44,8 @@ contract OracleBridge {
     }
 
     // set the peer address (this contract deployed on some other chain)
-    // this peer address will define the location of the storage to check
+    // set the address of the erc20 token wrapper (could be done elsewhere)
+    // the peer address will define the location of the storage to check
     function init(address _peer, address _wrapper)
         public
         returns (bool success)
@@ -68,7 +69,7 @@ contract OracleBridge {
         return true;
     }
 
-    // TODO action ID needs a `nonce` and a `type`
+    // generates a unique id for each action that is used to validate the action
     function getActionId(
         uint256 _nonce,
         uint256 _type,
@@ -107,7 +108,7 @@ contract OracleBridge {
         return id;
     }
 
-
+    // the magic function that validates those evm proofs
     function validateProof(
         address _recipient,
         uint256[] memory _uints, // blockNumber, amount, nonce, type
@@ -173,7 +174,7 @@ contract OracleBridge {
     }
 
     // Methods that consume actions from the peer chain (require proofs)
-
+    
     function mint(
         address _recipient,
         uint256[] memory _uints, // blockNumber, amount, nonce, type
