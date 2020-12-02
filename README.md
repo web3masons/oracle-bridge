@@ -30,6 +30,8 @@ A basic contract set, test suite and ~~TODO: Web UI~~ is included in this reposi
 
 Again, this is the most basic example and there is room for many improvements and optimisations, such as:
 
+- Support ERC20 deposits
+- One contract for multiple assets and chains
 - Implementaiton of metatransactions to eliminate the need of users to spend gas
 - A swap market to remove the need for users to wait for the confirmation blocks
 - Archive node services to allow users to access old proofs

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma experimental ABIEncoderV2;
 
-import "hardhat/console.sol";
-
 import "./lib/TrieProofs.sol";
 import "./lib/ERC20Wrapper.sol";
 
@@ -12,7 +10,7 @@ contract OracleBridge {
     using RLP for bytes;
 
     mapping(bytes32 => bool) public actions; // keep this at the top to be slot 0
-    mapping(bytes32 => bool) public relayedActions;
+    mapping(bytes32 => bool) public consumedActions;
     mapping(uint256 => bytes32) public checkpoints; // remote chain headers
 
     uint256 private constant STORAGE_SLOT_OFFSET = 0; // modify this if the actions slot changes
@@ -37,11 +35,6 @@ contract OracleBridge {
         address receiver,
         uint256 amount
     );
-
-    modifier isInitialized() {
-        require(peer != address(0) && wrapper != address(0), "Not isInitialized");
-        _;
-    }
 
     // set the peer address (this contract deployed on some other chain)
     // set the address of the erc20 token wrapper (could be done elsewhere)
@@ -84,7 +77,6 @@ contract OracleBridge {
     function deposit(address _recipient)
         public
         payable
-        isInitialized
         returns (bytes32 actionId)
     {
         actionCounter++;
@@ -97,7 +89,6 @@ contract OracleBridge {
     // actionType = 2
     function burn(address _recipient, uint256 _amount)
         public
-        isInitialized
         returns (bytes32 actionId)
     {
         actionCounter++;
@@ -128,7 +119,7 @@ contract OracleBridge {
             _uints[1]
         );
         // check this early to save gas
-        require(!relayedActions[actionId], "Action already relayed");
+        require(!consumedActions[actionId], "Action already relayed");
         // blockHash is a hash of the block header
         bytes32 blockHash = keccak256(blockHeader);
         // ensure the block header matches the checkpoint
@@ -166,7 +157,7 @@ contract OracleBridge {
         // if value is true, the other chain has this action ID
         require(valid, "Not a valid proof; state is not set");
         // now it's valid, record it's usage to ensure it's not replayed
-        relayedActions[actionId] = true;
+        consumedActions[actionId] = true;
         // emit an event
         emit ActionConsumed(actionId, _uints[2], _uints[3],  _recipient, _uints[1]);
         // NOW WE CAN DO AS WE PLEASE.....
@@ -181,7 +172,6 @@ contract OracleBridge {
         bytes[] memory _proofs // header, accountProof, storageProof
     )
         public
-        isInitialized
         returns (bool success)
     {
         validateProof(_recipient, _uints, _proofs, 1);
@@ -195,7 +185,6 @@ contract OracleBridge {
         bytes[] memory _proofs // header, accountProof, storageProof
     )
         public
-        isInitialized
         returns (bool success)
     {
         validateProof(_recipient, _uints, _proofs, 2);
