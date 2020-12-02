@@ -1,6 +1,6 @@
 # Oracle Bridge
 
-A proof of concept EVM to EVM cross-chain communication protocol using EVM Storage Proofs and Oracles.
+A proof of concept EVM to EVM cross-chain communication protocol using EVM Storage Proofs and Oracles, for a custody-free token bridge.
 
 ![Oracle Brdige Diagram](https://github.com/web3masons/oracle-bridge/blob/master/diagram.png)
 
@@ -12,7 +12,9 @@ Instead of verifying proof of work trustlessly within a contract, the Oracle Bri
 
 Contracts can then implement novel schemes for communicating between chains. In this example, we create a token bridge that issues "wrapped" tokens that can be redeemed back to the original asset with strong guaruntees. Let's dive deeper.
 
-Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking it up on ETC and issuing an IOU 'wrapped token' on ETH that can be trustlessly redeemed for ETC. A basic implementaiton of the system is as follows (the numbers provided are flexible and are for illustrative purposes only):
+Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking it up on ETC and issuing an IOU 'wrapped token' on ETH that can be trustlessly\* redeemed for ETC. A basic implementaiton of the system is as follows (the numbers provided are flexible and are for illustrative purposes only):
+
+\*the only trust assumption is that the majority of correctly oracles report true block headers, as opposed to a traditional bridge that has some kind of custody
 
 1. User deposits 1 ETC into the `ETC-OracleBridge` contract (on the Ethereum Classic chain)
 1. The user creates a Storage Proof proving the ETC has been deposited on this block
@@ -30,6 +32,7 @@ A basic contract set, test suite and ~~TODO: Web UI~~ is included in this reposi
 
 Again, this is the most basic example and there is room for many improvements and optimisations, such as:
 
+- Work out the best scheme for Oracle selection
 - Support ERC20 deposits
 - One contract for multiple assets and chains
 - Implementaiton of metatransactions to eliminate the need of users to spend gas
