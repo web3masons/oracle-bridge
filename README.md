@@ -6,9 +6,9 @@ A proof of concept EVM to EVM cross-chain communication protocol using EVM Stora
 
 ## Overview
 
-EVM Storage proofs enable a contract to prove the presence of a specific peice of data on another EVM environment. Attempts have been made to use this to create chain-to-chain communication, but the limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
+[EVM Storage Proofs](https://github.com/aragon/evm-storage-proofs) enable a contract to prove the presence of a specific peice of data on another EVM environment. Attempts have been made to use this to create chain-to-chain communication, but one limitation is that Ethereum's Proof of Work cannot be verified within a contract due to the gas limit.
 
-Instead of verifying proof of work trustlessly within a contract, this approach used an oracle (or collection of oracles) to report the block header of remote chains, which can then be used to derive a verification of the state of the other chain using EVM storage proofs.
+Instead of verifying proof of work trustlessly within a contract, the Oracle Brdige approach uses an oracle (or collection of oracles) to periodically report the block number and block hash of remote chains, which can then be used to verify the state of the other chain using using EVM storage proofs.
 
 Contracts can then use this proof to create novel schemes communicating between chains. In this example, we create a token bridge that issues "wrapped" tokens that can be redeemed with strong guaruntees. Let's dive deeper.
 
