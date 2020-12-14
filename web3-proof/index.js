@@ -1,7 +1,9 @@
 /* eslint-disable class-methods-use-this */
 // modified from https://github.com/aragon/evm-storage-proofs/blob/eec39e0668304c0c0cc42eaa86fe6a459f623645/packages/web3-proofs/src/index.js
+// this is pretty hacky, refactor to just use ethersjs (!)
 
 const Web3 = require('web3')
+const { ethers } = require('ethers');
 const EthereumBlock = require('ethereumjs-block/from-rpc')
 const RLP = require('rlp')
 const Trie = require('merkle-patricia-tree')
@@ -11,7 +13,7 @@ class Web3Proofs {
   constructor(ethersProvider) {
     this.ethersProvider = ethersProvider
     this.web3 = new Web3(
-      new Web3.providers.HttpProvider('http://localhost:8545'),
+      new Web3.providers.HttpProvider(ethersProvider.connection.url),
     )
   }
 
@@ -147,10 +149,8 @@ class Web3Proofs {
 // storage slot position - modify if the contact changes the location of `actions`
 const SLOT_POSITION = 0
 
-async function getProof(address, actionId, blockNumber = 'latest') {
-  const w3p = new Web3Proofs(
-    new ethers.providers.JsonRpcProvider('http://localhost:8545'),
-  )
+async function getProof(address, actionId, blockNumber = 'latest', ethersProvider) {
+  const w3p = new Web3Proofs(ethersProvider);
   const slot = ethers.utils.solidityKeccak256(
     ['bytes32', 'uint256'],
     [actionId, SLOT_POSITION],
@@ -159,4 +159,4 @@ async function getProof(address, actionId, blockNumber = 'latest') {
   return proofs
 }
 
-module.exports = { getProof }
+module.exports = getProof

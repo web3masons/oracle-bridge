@@ -19,6 +19,7 @@ contract OracleBridge {
     address public wrapper;
     address public peer;
     uint256 public actionCounter;
+    uint256 public latestCheckpoint;
 
     event ActionCreated(
         bytes32 indexed id,
@@ -59,6 +60,7 @@ contract OracleBridge {
         returns (bool success)
     {
         checkpoints[_height] = _hash;
+        latestCheckpoint = _height;
         return true;
     }
 

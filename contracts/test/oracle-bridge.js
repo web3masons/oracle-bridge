@@ -1,5 +1,6 @@
 const { expect } = require('chai')
-const { getProof } = require('../web3-proof')
+
+const getProof = require('web3-proof')
 
 describe('OracleBridge', () => {
   it('works', async () => {
@@ -41,11 +42,13 @@ describe('OracleBridge', () => {
 
     const { id: depositId, nonce: depositNonce } = depositTx.events[0].args
 
+    console.log(ethers.provider)
     // generate proof locally
     const depositProof = await getProof(
       oracleBridge.address,
       depositId,
       depositTx.blockNumber,
+      ethers.provider
     )
 
     // create a checkpoint
@@ -91,6 +94,7 @@ describe('OracleBridge', () => {
       oracleBridge.address,
       burnId,
       burnTx.blockNumber,
+      ethers.provider
     )
 
     // create a checkpoint
