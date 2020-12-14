@@ -1,4 +1,5 @@
 import useBridge from '../hooks/useBridge';
+import Action from './Action';
 import Json from './Json';
 
 const defaults = {
@@ -15,17 +16,17 @@ const Chain = props => {
   return (
     <div className="chain">
       <h2 style={{ color: bridge.color }}>{bridge.chainName}</h2>
-      <ul>
-        {/* <li>{bridge.endpoint}</li> */}
-        {/* <li>Balances</li>
-        <li>Contract Status</li>
-        <li>Form</li>
-        <li>Transactions</li>
-        <li>Checkpoints</li> */}
-      </ul>
-      <button onClick={() => bridge.createCheckpoint()}>
-        Create Checkpoint
+      <br />
+      <button
+        onClick={() => {
+          bridge.mine(parseInt(prompt('How many blocks to mine?', 1)));
+        }}
+      >
+        Mine
       </button>
+      <br />
+      <button onClick={() => bridge.createCheckpoint()}>Checkpoint</button>
+      <br />
       <button
         onClick={() =>
           bridge.deposit(parseInt(prompt('Enter Deposit Amount', 42)))
@@ -33,7 +34,34 @@ const Chain = props => {
       >
         Despoit
       </button>
-
+      <br />
+      Mint:{' '}
+      <input
+        type="file"
+        onChange={doc => {
+          try {
+            const file = doc.target.files[0];
+            const reader = new FileReader(file);
+            reader.readAsText(file);
+            reader.onload = async e => {
+              const parsed = await JSON.parse(e.target.result);
+              if (!parsed.actionType) {
+                alert("Proof format incorrect")
+              }
+              bridge.mint(parsed);
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        }}
+      />
+      <br />
+      <button disabled>Burn</button>
+      <br />
+      <button disabled>Withdraw</button>
+      {Object.keys(bridge.actions || {}).map(id => (
+        <Action id={id} action={bridge.actions[id]} bridge={bridge} />
+      ))}
       <Json>{bridge}</Json>
     </div>
   );

@@ -10,19 +10,23 @@ const useEthers = ({ endpoint, privateKey }) => {
   useEffect(() => {
     provider.current = new ethers.providers.JsonRpcProvider(endpoint);
     wallet.current = new ethers.Wallet(privateKey, provider.current);
-    console.log(wallet.current);
-    setState({ ...state, ready: true, signer: wallet.current.address });
-    setTimeout(() => getBlockNumber);
+    setState(p => ({ ...p, ready: true, signer: wallet.current.address }));
+    getBlockNumber();
   }, []);
 
   async function getBlockNumber() {
-    setState({
-      ...state,
-      blockNumber: await provider.current.getBlockNumber()
-    });
+    const blockNumber = await provider.current.getBlockNumber();
+    setState(p => ({ ...p, blockNumber }));
   }
 
-  return { ...state, wallet, provider, getBlockNumber };
+  async function mine(blocks = 1) {
+    for (let i = 0; i < blocks; i++) {
+      await wallet.current.sendTransaction({ to: state.signer });
+      await getBlockNumber();
+    }
+  }
+
+  return { ...state, wallet, provider, getBlockNumber, mine };
 };
 
 export default useEthers;

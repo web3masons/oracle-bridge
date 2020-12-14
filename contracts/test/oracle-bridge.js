@@ -42,7 +42,6 @@ describe('OracleBridge', () => {
 
     const { id: depositId, nonce: depositNonce } = depositTx.events[0].args
 
-    console.log(ethers.provider)
     // generate proof locally
     const depositProof = await getProof(
       oracleBridge.address,
