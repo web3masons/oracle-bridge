@@ -51,13 +51,17 @@ const useBridge = props => {
     await update();
   }
 
-  async function initialize(peer, wrapperAddress) {
+  async function initialize(_peer, _wrapperAddress) {
     if (!state.initialized) {
       await (
         await bridge.current
           .connect(eth.wallets.current[0])
-          .init(peer, wrapperAddress)
+          .init(_peer, _wrapperAddress)
       ).wait();
+      const [peer, wrapperAddress] = await Promise.all([
+        bridge.current.peer(),
+        bridge.current.wrapper()
+      ]);
       _initialize(peer, wrapperAddress);
     }
   }

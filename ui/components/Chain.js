@@ -12,6 +12,13 @@ const defaults = {
 };
 
 const Chain = props => {
+  if (!props.contractAddress.startsWith('0x')) {
+    return (
+      <div className="chain" style={{ textAlign: 'center' }}>
+        No Chain Address Specified
+      </div>
+    );
+  }
   const bridge = useBridge({ ...defaults, ...props });
   return (
     <div
