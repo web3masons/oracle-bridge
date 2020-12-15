@@ -46,7 +46,7 @@ const Chain = props => {
             reader.onload = async e => {
               const parsed = await JSON.parse(e.target.result);
               if (!parsed.actionType) {
-                alert("Proof format incorrect")
+                alert('Proof format incorrect');
               }
               bridge.mint(parsed);
             };
@@ -56,11 +56,36 @@ const Chain = props => {
         }}
       />
       <br />
-      <button disabled>Burn</button>
+      <button
+        onClick={() => {
+          bridge.burn(parseInt(prompt('Enter Burn Amount', 42)));
+        }}
+      >
+        Burn
+      </button>
       <br />
-      <button disabled>Withdraw</button>
+      Redeem:{' '}
+      <input
+        type="file"
+        onChange={doc => {
+          try {
+            const file = doc.target.files[0];
+            const reader = new FileReader(file);
+            reader.readAsText(file);
+            reader.onload = async e => {
+              const parsed = await JSON.parse(e.target.result);
+              if (!parsed.actionType) {
+                alert('Proof format incorrect');
+              }
+              bridge.redeem(parsed);
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        }}
+      />{' '}
       {Object.keys(bridge.actions || {}).map(id => (
-        <Action id={id} action={bridge.actions[id]} bridge={bridge} />
+        <Action key={id} action={bridge.actions[id]} bridge={bridge} />
       ))}
       <Json>{bridge}</Json>
     </div>

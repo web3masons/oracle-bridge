@@ -70,16 +70,19 @@ const useBridge = props => {
   async function createCheckpoint(_height, _hash) {
     const height = _height || (await eth.provider.current.getBlockNumber());
     const hash = _hash || (await eth.provider.current.getBlock(height)).hash;
-    console.log(bridge.current);
-    const tx = await bridge.current.createCheckpoint(height, hash);
-    await tx.wait();
+    await (await bridge.current.createCheckpoint(height, hash)).wait();
     getLatestCheckpoint();
     eth.getBlockNumber();
   }
 
-  async function deposit(value = 100) {
-    const tx = await bridge.current.deposit(eth.signer, { value });
-    const depositTx = await tx.wait();
+  async function deposit(value) {
+    if (!parseInt(value)) {
+      alert('Bad value');
+      return;
+    }
+    const depositTx = await (
+      await bridge.current.deposit(eth.signer, { value })
+    ).wait();
     // now get the proof of the deposit...
     const {
       actionType,
@@ -134,10 +137,49 @@ const useBridge = props => {
         proof.actionType.hex
       ],
       [proof.blockHeaderRLP, proof.accountProofRLP, proof.storageProofsRLP[0]],
-      { gasLimit: 2000000 }
+      { gasLimit: 3000000 }
     );
     console.log(await tx.wait());
     await getTokenBalance(proof.receiver);
+  }
+
+  async function burn(value) {
+    if (!parseInt(value)) {
+      alert('Bad value');
+      return;
+    }
+    const burnTx = await (await bridge.current.burn(eth.signer, value)).wait();
+    console.log(burnTx);
+    // now get the proof of the burn...
+    const { actionType, amount, id, nonce, receiver } = burnTx.events[1].args;
+    // save the action...
+    setState(p => ({
+      ...p,
+      actions: {
+        ...p.actions,
+        [id]: { actionType, amount, id, nonce, receiver }
+      }
+    }));
+
+    await eth.getBlockNumber();
+    await getTokenBalance(eth.signer);
+  }
+
+  async function redeem(proof) {
+    const tx = await bridge.current.redeem(
+      proof.receiver,
+      [
+        proof.block.number,
+        proof.amount.hex,
+        proof.nonce.hex,
+        proof.actionType.hex
+      ],
+      [proof.blockHeaderRLP, proof.accountProofRLP, proof.storageProofsRLP[0]],
+      { gasLimit: 3000000 }
+    );
+    console.log(await tx.wait());
+    // TODO
+    // await eth.getBalance(proof.receiver);
   }
 
   return {
@@ -148,7 +190,9 @@ const useBridge = props => {
     createCheckpoint,
     deposit,
     generateProof,
-    mint
+    mint,
+    burn,
+    redeem
   };
 };
 

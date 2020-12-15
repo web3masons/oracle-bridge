@@ -63,3 +63,12 @@ eth.sendTransaction({from:eth.coinbase, to:eth.accounts[1],value:1e18})
 # unlock it
 personal.unlockAccount(eth.accounts[1],'',0)
 ```
+
+
+## UI Demo TODOs
+
+- Multiple different chains
+- Multiple different accounts
+- "One Button" flow
+- Relay proof without having to download JSON
+- Nice UI

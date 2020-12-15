@@ -14,6 +14,17 @@ const useEthers = ({ endpoint, privateKey }) => {
     getBlockNumber();
   }, []);
 
+  async function getBalance(account) {
+    const balance = await provider.current.getBalance(account);
+    setState(p => ({
+      ...p,
+      balances: {
+        ...p.balances,
+        [account]: balance.toString()
+      }
+    }));
+  }
+
   async function getBlockNumber() {
     const blockNumber = await provider.current.getBlockNumber();
     setState(p => ({ ...p, blockNumber }));
