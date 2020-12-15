@@ -17,13 +17,12 @@ const useEthers = ({ endpoint, users }) => {
   }, []);
 
   async function getBalance(account) {
-    const balance = await provider.current.getBalance(account);
-    console.log('got bal for', account);
+    const balance = (await provider.current.getBalance(account)).toString();
     setState(p => ({
       ...p,
       balances: {
         ...p.balances,
-        [account]: balance.toString()
+        [account]: balance
       }
     }));
   }

@@ -1,8 +1,17 @@
 import Blockie from './Blockie';
 
-const Address = ({ children }) => {
+const Address = ({ children, short }) => {
   if (!children) {
     return '-';
+  }
+  if (short) {
+    return (
+      <>
+        {children.slice(2).slice(0, 3)}
+        {'..'}
+        {children.slice(-3)}
+      </>
+    );
   }
   const long = children.length > 50;
   return (
@@ -21,7 +30,7 @@ const Address = ({ children }) => {
           textOverflow: 'ellipsis'
         }}
       >
-        {children}
+        {children.slice(2)}
       </span>
     </span>
   );

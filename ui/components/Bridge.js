@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import Chain from './Chain';
-import Proofs from './Proofs';
 
 const users = {
   alice: {
@@ -50,14 +49,13 @@ const Bridge = () => {
 
   return (
     <>
-      <Proofs proofs={state} />
       <div className="bridge">
         <Chain
           proofs={state}
           onProofUpdate={onProofUpdate}
           color="255,0,0"
           chainName="Asok"
-          contractAddress="0xd15974A098b95EB823bC5336A2C5c636b1d4139f"
+          contractAddress="0xCa96b3113C3122d303A0720A5b00DCc313fBB423"
           endpoint="http://localhost:3333"
           // oracle, depositer, burner, withdrawer
           users={[users.oracle, users.alice, users.bob, users.charlie]}
@@ -67,7 +65,7 @@ const Bridge = () => {
           onProofUpdate={onProofUpdate}
           color="0,0,255"
           chainName="Nana"
-          contractAddress="0x2fB5C52E0df7359530313aE4fDC7f6b7c2E29287"
+          contractAddress="0x973EDFdB5831e077534304D5Cb6074E36d57f9a6"
           endpoint="http://localhost:4444"
           // oracle, depositer, burner, withdrawer
           users={[users.oracle, users.dave, users.emma, users.fred]}

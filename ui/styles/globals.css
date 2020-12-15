@@ -2,8 +2,13 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+body {
+  background: #dedede;
+}
+
+button, html, body {
+  font-family: 'Roboto Mono', monospace;
 }
 
 a {
@@ -16,15 +21,48 @@ a {
 }
 
 .bridge {
+  margin: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 15px;
+}
+
+h1 {
+  text-align: center;
 }
 
 .chain {
-  float: left;
-  width: 50%;
-  padding: 20px;
+  /* margin: 15px; */
+  box-sizing: border-box;
+  border-radius: 15px;
 }
 
 th {
   text-align: left;
   vertical-align: top;
+}
+
+table {
+  margin: 20px 0;
+}
+td, th {
+  padding: 2px 15px;
+}
+
+.actions {
+  margin: 15px;
+}
+button {
+  margin: 5px;
+}
+h1, .footer {
+  margin: 30px;
+}
+.footer {
+  text-align: center;
+}
+.footer img {
+  width: 50px;
+  height: auto;
+  opacity: 0.5;
 }

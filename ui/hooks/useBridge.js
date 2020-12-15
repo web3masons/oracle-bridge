@@ -36,7 +36,7 @@ const useBridge = props => {
           setState(p => ({ ...p, initialized: false }));
         }
         getLatestCheckpoint();
-        // getTokenBalance(eth.signer);
+        update();
       })();
     }
   }, [eth.ready]);
@@ -53,7 +53,6 @@ const useBridge = props => {
 
   async function initialize(peer, wrapperAddress) {
     if (!state.initialized) {
-      console.log('initializing with', peer, wrapperAddress);
       await (
         await bridge.current
           .connect(eth.wallets.current[0])
@@ -82,7 +81,10 @@ const useBridge = props => {
   }
 
   async function getTokenBalance(account) {
-    const balance = (await wrapper.current.balanceOf(account)).toNumber();
+    if (!wrapper.current) {
+      return;
+    }
+    const balance = (await wrapper.current.balanceOf(account)).toString();
     setState(p => ({
       ...p,
       wrapperBalances: {
@@ -92,11 +94,12 @@ const useBridge = props => {
     }));
   }
 
-  async function createCheckpoint(height, hash) {
-    if (!height || !hash) {
+  async function createCheckpoint(height, _hash) {
+    if (!height || !_hash) {
       alert('Bad inputs!!');
       return;
     }
+    const hash = _hash.startsWith('0x') ? _hash : `0x${_hash}`;
     await (
       await bridge.current
         .connect(eth.wallets.current[0])
@@ -131,7 +134,29 @@ const useBridge = props => {
       id,
       nonce,
       receiver,
-      chainName: state.chainName
+      chainName: props.chainName
+    });
+    update();
+  }
+
+  async function burn(value, to) {
+    if (!parseInt(value, 10) || !to) {
+      alert('Bad value');
+      return;
+    }
+    const burnTx = await (
+      await bridge.current.connect(eth.wallets.current[2]).burn(to, value)
+    ).wait();
+    // now get the proof of the burn...
+    const { actionType, amount, id, nonce, receiver } = burnTx.events[1].args;
+    // save the action...
+    props.onProofUpdate({
+      actionType,
+      amount,
+      id,
+      nonce,
+      receiver,
+      chainName: props.chainName
     });
     update();
   }
@@ -149,58 +174,39 @@ const useBridge = props => {
 
   async function mint(proof) {
     await (
-      await bridge.current.mint(
-        proof.receiver,
-        [
-          proof.block.number,
-          proof.amount.hex,
-          proof.nonce.hex,
-          proof.actionType.hex
-        ],
-        [
-          proof.blockHeaderRLP,
-          proof.accountProofRLP,
-          proof.storageProofsRLP[0]
-        ],
-        { gasLimit: 3000000 }
-      )
+      await bridge.current
+        .connect(eth.wallets.current[2])
+        .mint(
+          proof.receiver,
+          [proof.block.number, proof.amount, proof.nonce, proof.actionType],
+          [
+            proof.blockHeaderRLP,
+            proof.accountProofRLP,
+            proof.storageProofsRLP[0]
+          ],
+          { gasLimit: 3000000 }
+        )
     ).wait();
-    props.onProofUdpate({ id: proof.id, consumed: true });
-    update();
-  }
-
-  async function burn(value) {
-    if (!parseInt(value, 10)) {
-      alert('Bad value');
-      return;
-    }
-    const burnTx = await (await bridge.current.burn(eth.signer, value)).wait();
-    // now get the proof of the burn...
-    const { actionType, amount, id, nonce, receiver } = burnTx.events[1].args;
-    // save the action...
-    props.onProofUpdate({ actionType, amount, id, nonce, receiver });
+    props.onProofUpdate({ id: proof.id, consumed: true });
     update();
   }
 
   async function redeem(proof) {
     await (
-      await bridge.current.redeem(
-        proof.receiver,
-        [
-          proof.block.number,
-          proof.amount.hex,
-          proof.nonce.hex,
-          proof.actionType.hex
-        ],
-        [
-          proof.blockHeaderRLP,
-          proof.accountProofRLP,
-          proof.storageProofsRLP[0]
-        ],
-        { gasLimit: 3000000 }
-      )
+      await bridge.current
+        .connect(eth.wallets.current[3])
+        .redeem(
+          proof.receiver,
+          [proof.block.number, proof.amount, proof.nonce, proof.actionType],
+          [
+            proof.blockHeaderRLP,
+            proof.accountProofRLP,
+            proof.storageProofsRLP[0]
+          ],
+          { gasLimit: 3000000 }
+        )
     ).wait();
-    props.onProofUdpate({ id: proof.id, consumed: true });
+    props.onProofUpdate({ id: proof.id, consumed: true });
     // TODO
     update();
   }
