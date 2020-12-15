@@ -78,13 +78,3 @@ npm run deploy-asok && npm run fund-asok
 # deploy and fund asok accounts; take note of contract addresss and update UI
 npm run deploy-nana && npm run fund-nana
 ```
-
-
-
-## UI Demo TODOs
-
-- Multiple different chains
-- Multiple different accounts
-- "One Button" flow
-- Relay proof without having to download JSON
-- Nice UI
