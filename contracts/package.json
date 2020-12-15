@@ -9,7 +9,11 @@
   "private": false,
   "scripts": {
     "test": "hardhat test",
-    "deploy": "hardhat run scripts/sample-deploy.js"
+    "deploy": "hardhat run scripts/sample-deploy.js",
+    "deploy-asok": "hardhat run --network asok scripts/sample-deploy.js",
+    "deploy-nana": "hardhat run --network nana scripts/sample-deploy.js",
+    "fund-asok": "hardhat run --network asok scripts/fund-accounts.js",
+    "fund-nana": "hardhat run --network nana scripts/fund-accounts.js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

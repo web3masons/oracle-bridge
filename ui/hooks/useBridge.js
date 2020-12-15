@@ -19,7 +19,7 @@ const useBridge = props => {
       bridge.current = new ethers.Contract(
         props.contractAddress,
         bridgeAbi,
-        eth.wallet.current
+        eth.provider.current
       );
       (async () => {
         const [peer, wrapperAddress] = await Promise.all([
@@ -29,11 +29,12 @@ const useBridge = props => {
         wrapper.current = new ethers.Contract(
           wrapperAddress,
           wrapperAbi,
-          eth.wallet.current
+          eth.provider.current
         );
         setState(p => ({ ...p, peer, wrapperAddress }));
         getLatestCheckpoint();
-        getTokenBalance(eth.signer);
+        update();
+        // getTokenBalance(eth.signer);
       })();
     }
   }, [eth.ready]);
@@ -67,12 +68,17 @@ const useBridge = props => {
     }));
   }
 
-  async function createCheckpoint(_height, _hash) {
-    const height = _height || (await eth.provider.current.getBlockNumber());
-    const hash = _hash || (await eth.provider.current.getBlock(height)).hash;
-    await (await bridge.current.createCheckpoint(height, hash)).wait();
+  async function createCheckpoint(height, hash) {
+    if (!height || !hash) {
+      return alert('Bad inputs!!');
+    }
+    await (
+      await bridge.current
+        .connect(eth.wallets.current[0])
+        .createCheckpoint(height, hash, { gasLimit: 300000 })
+    ).wait();
     getLatestCheckpoint();
-    eth.getBlockNumber();
+    update();
   }
 
   async function deposit(value) {
@@ -92,55 +98,41 @@ const useBridge = props => {
       receiver
     } = depositTx.events[0].args;
 
-    // save the action...
-    setState(p => ({
-      ...p,
-      actions: {
-        ...p.actions,
-        [id]: { actionType, amount, id, nonce, receiver }
-      }
-    }));
-
-    eth.getBlockNumber();
+    props.onProofUpdate({ actionType, amount, id, nonce, receiver });
+    update();
   }
 
-  async function generateProof(actionId, proofBlockNumber) {
+  async function generateProof(id, proofBlockNumber) {
     // generate and verify the proof
     const depositProof = await getProof(
       bridge.current.address,
-      actionId,
+      id,
       proofBlockNumber,
       eth.provider.current
     );
-
-    console.log(depositProof);
-    // save the proof...
-    setState(p => ({
-      ...p,
-      actions: {
-        ...p.actions,
-        [actionId]: {
-          ...p.actions[actionId],
-          ...depositProof
-        }
-      }
-    }));
+    props.onProofUpdate({ id, ...depositProof });
   }
 
   async function mint(proof) {
-    const tx = await bridge.current.mint(
-      proof.receiver,
-      [
-        proof.block.number,
-        proof.amount.hex,
-        proof.nonce.hex,
-        proof.actionType.hex
-      ],
-      [proof.blockHeaderRLP, proof.accountProofRLP, proof.storageProofsRLP[0]],
-      { gasLimit: 3000000 }
-    );
-    console.log(await tx.wait());
-    await getTokenBalance(proof.receiver);
+    await (
+      await bridge.current.mint(
+        proof.receiver,
+        [
+          proof.block.number,
+          proof.amount.hex,
+          proof.nonce.hex,
+          proof.actionType.hex
+        ],
+        [
+          proof.blockHeaderRLP,
+          proof.accountProofRLP,
+          proof.storageProofsRLP[0]
+        ],
+        { gasLimit: 3000000 }
+      )
+    ).wait();
+    props.onProofUdpate({ id: proof.id, consumed: true });
+    update();
   }
 
   async function burn(value) {
@@ -149,37 +141,42 @@ const useBridge = props => {
       return;
     }
     const burnTx = await (await bridge.current.burn(eth.signer, value)).wait();
-    console.log(burnTx);
     // now get the proof of the burn...
     const { actionType, amount, id, nonce, receiver } = burnTx.events[1].args;
     // save the action...
-    setState(p => ({
-      ...p,
-      actions: {
-        ...p.actions,
-        [id]: { actionType, amount, id, nonce, receiver }
-      }
-    }));
-
-    await eth.getBlockNumber();
-    await getTokenBalance(eth.signer);
+    props.onProofUpdate({ actionType, amount, id, nonce, receiver });
+    update();
   }
 
   async function redeem(proof) {
-    const tx = await bridge.current.redeem(
-      proof.receiver,
-      [
-        proof.block.number,
-        proof.amount.hex,
-        proof.nonce.hex,
-        proof.actionType.hex
-      ],
-      [proof.blockHeaderRLP, proof.accountProofRLP, proof.storageProofsRLP[0]],
-      { gasLimit: 3000000 }
-    );
-    console.log(await tx.wait());
+    await (
+      await bridge.current.redeem(
+        proof.receiver,
+        [
+          proof.block.number,
+          proof.amount.hex,
+          proof.nonce.hex,
+          proof.actionType.hex
+        ],
+        [
+          proof.blockHeaderRLP,
+          proof.accountProofRLP,
+          proof.storageProofsRLP[0]
+        ],
+        { gasLimit: 3000000 }
+      )
+    ).wait();
+    props.onProofUdpate({ id: proof.id, consumed: true });
     // TODO
-    // await eth.getBalance(proof.receiver);
+    update();
+  }
+
+  function update() {
+    eth.getBlockNumber();
+    Object.values(eth.users).map(({ addr }) => {
+      eth.getBalance(addr);
+      getTokenBalance(addr);
+    });
   }
 
   return {

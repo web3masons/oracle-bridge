@@ -1,21 +1,24 @@
 import { ethers } from 'ethers';
 import { useEffect, useRef, useState } from 'react';
 
-const useEthers = ({ endpoint, privateKey }) => {
+const useEthers = ({ endpoint, users }) => {
   const [state, setState] = useState();
 
   const provider = new useRef();
-  const wallet = new useRef();
+  const wallets = new useRef();
 
   useEffect(() => {
     provider.current = new ethers.providers.JsonRpcProvider(endpoint);
-    wallet.current = new ethers.Wallet(privateKey, provider.current);
-    setState(p => ({ ...p, ready: true, signer: wallet.current.address }));
+    wallets.current = users.map(
+      ({ pk }) => new ethers.Wallet(pk, provider.current)
+    );
+    setState(p => ({ ...p, ready: true, users }));
     getBlockNumber();
   }, []);
 
   async function getBalance(account) {
     const balance = await provider.current.getBalance(account);
+    console.log('got bal for', account);
     setState(p => ({
       ...p,
       balances: {
@@ -27,17 +30,22 @@ const useEthers = ({ endpoint, privateKey }) => {
 
   async function getBlockNumber() {
     const blockNumber = await provider.current.getBlockNumber();
-    setState(p => ({ ...p, blockNumber }));
+    const { hash: blockHash } = await provider.current.getBlock();
+    setState(p => ({ ...p, blockNumber, blockHash }));
   }
 
   async function mine(blocks = 1) {
     for (let i = 0; i < blocks; i++) {
-      await wallet.current.sendTransaction({ to: state.signer });
+      await wallets.current[0].sendTransaction({
+        to: ethers.constants.AddressZero,
+        value: 1
+      });
       await getBlockNumber();
     }
+    getBalance(users[0].addr);
   }
 
-  return { ...state, wallet, provider, getBlockNumber, mine };
+  return { ...state, wallets, provider, getBlockNumber, mine, getBalance };
 };
 
 export default useEthers;

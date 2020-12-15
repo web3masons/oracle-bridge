@@ -7,5 +7,11 @@ module.exports = {
     gethDevMode: {
       url: 'http://localhost:8545',
     },
+    asok: {
+      url: 'http://localhost:3333',
+    },
+    nana: {
+      url: 'http://localhost:4444',
+    },
   },
 }

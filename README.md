@@ -64,6 +64,22 @@ eth.sendTransaction({from:eth.coinbase, to:eth.accounts[1],value:1e18})
 personal.unlockAccount(eth.accounts[1],'',0)
 ```
 
+## UI Tesitng
+
+In this case we are using two seperate networks to simulate cross chian stuff, with private keys in the browser.
+
+```bash
+# start asok
+geth --datadir ~/no-backup/geth-dev-asok --rpc --dev --allow-insecure-unlock --rpccorsdomain "http://localhost:3000" --http --http.port 3333
+# start nana
+geth --datadir ~/no-backup/geth-dev-nana --rpc --dev --allow-insecure-unlock --rpccorsdomain "http://localhost:3000" --http --http.port 4444
+# deploy and fund asok accounts; take note of contract addresss and update UI
+npm run deploy-asok && npm run fund-asok
+# deploy and fund asok accounts; take note of contract addresss and update UI
+npm run deploy-nana && npm run fund-nana
+```
+
+
 
 ## UI Demo TODOs
 

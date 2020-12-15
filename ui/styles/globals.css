@@ -23,3 +23,8 @@ a {
   width: 50%;
   padding: 20px;
 }
+
+th {
+  text-align: left;
+  vertical-align: top;
+}

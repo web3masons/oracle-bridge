@@ -1,6 +1,20 @@
-const Address = ({ children }) => {
+const Address = ({ children, long }) => {
   if (!children) {
     return '-';
+  }
+  if (long) {
+    return (
+      <span
+        style={{
+          display: 'inline-block',
+          width: '7em',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}
+      >
+        {children}
+      </span>
+    );
   }
   return (
     <code>
