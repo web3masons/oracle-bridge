@@ -14,6 +14,7 @@ const Json = ({ children, download, fileName }) => {
       <Block>{JSON.stringify(children, null, 2)}</Block>
       {download && (
         <button
+          type="button"
           onClick={() => {
             saveJSON(download, fileName);
           }}

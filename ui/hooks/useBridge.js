@@ -26,18 +26,42 @@ const useBridge = props => {
           bridge.current.peer(),
           bridge.current.wrapper()
         ]);
-        wrapper.current = new ethers.Contract(
-          wrapperAddress,
-          wrapperAbi,
-          eth.provider.current
-        );
-        setState(p => ({ ...p, peer, wrapperAddress }));
+        const initialized =
+          peer !== ethers.constants.AddressZero &&
+          wrapperAddress !== ethers.constants.AddressZero;
+
+        if (initialized) {
+          await _initialize(peer, wrapperAddress);
+        } else {
+          setState(p => ({ ...p, initialized: false }));
+        }
         getLatestCheckpoint();
-        update();
         // getTokenBalance(eth.signer);
       })();
     }
   }, [eth.ready]);
+
+  async function _initialize(peer, wrapperAddress) {
+    wrapper.current = new ethers.Contract(
+      wrapperAddress,
+      wrapperAbi,
+      eth.provider.current
+    );
+    setState(p => ({ ...p, peer, wrapperAddress, initialized: true }));
+    await update();
+  }
+
+  async function initialize(peer, wrapperAddress) {
+    if (!state.initialized) {
+      console.log('initializing with', peer, wrapperAddress);
+      await (
+        await bridge.current
+          .connect(eth.wallets.current[0])
+          .init(peer, wrapperAddress)
+      ).wait();
+      _initialize(peer, wrapperAddress);
+    }
+  }
 
   async function getCheckpoint(_height) {
     const height = _height || state.latestCheckpoint;
@@ -70,7 +94,8 @@ const useBridge = props => {
 
   async function createCheckpoint(height, hash) {
     if (!height || !hash) {
-      return alert('Bad inputs!!');
+      alert('Bad inputs!!');
+      return;
     }
     await (
       await bridge.current
@@ -81,13 +106,15 @@ const useBridge = props => {
     update();
   }
 
-  async function deposit(value) {
-    if (!parseInt(value)) {
+  async function deposit(value, to) {
+    if (!parseInt(value, 10) || !to) {
       alert('Bad value');
       return;
     }
     const depositTx = await (
-      await bridge.current.deposit(eth.signer, { value })
+      await bridge.current
+        .connect(eth.wallets.current[1])
+        .deposit(to, { value })
     ).wait();
     // now get the proof of the deposit...
     const {
@@ -98,7 +125,14 @@ const useBridge = props => {
       receiver
     } = depositTx.events[0].args;
 
-    props.onProofUpdate({ actionType, amount, id, nonce, receiver });
+    props.onProofUpdate({
+      actionType,
+      amount,
+      id,
+      nonce,
+      receiver,
+      chainName: state.chainName
+    });
     update();
   }
 
@@ -136,7 +170,7 @@ const useBridge = props => {
   }
 
   async function burn(value) {
-    if (!parseInt(value)) {
+    if (!parseInt(value, 10)) {
       alert('Bad value');
       return;
     }
@@ -173,7 +207,7 @@ const useBridge = props => {
 
   function update() {
     eth.getBlockNumber();
-    Object.values(eth.users).map(({ addr }) => {
+    Object.values(eth.users).forEach(({ addr }) => {
       eth.getBalance(addr);
       getTokenBalance(addr);
     });
@@ -183,6 +217,7 @@ const useBridge = props => {
     ...props,
     ...eth,
     ...state,
+    initialize,
     getLatestCheckpoint,
     createCheckpoint,
     deposit,

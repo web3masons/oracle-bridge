@@ -10,8 +10,8 @@
   "scripts": {
     "test": "hardhat test",
     "deploy": "hardhat run scripts/sample-deploy.js",
-    "deploy-asok": "hardhat run --network asok scripts/sample-deploy.js",
-    "deploy-nana": "hardhat run --network nana scripts/sample-deploy.js",
+    "deploy-asok": "NO_INIT=1 hardhat run --network asok scripts/sample-deploy.js",
+    "deploy-nana": "NO_INIT=1 hardhat run --network nana scripts/sample-deploy.js",
     "fund-asok": "hardhat run --network asok scripts/fund-accounts.js",
     "fund-nana": "hardhat run --network nana scripts/fund-accounts.js"
   },

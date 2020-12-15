@@ -1,4 +1,3 @@
-import Chain from './Chain';
 import Json from './Json';
 
 const Proofs = ({ proofs }) => {

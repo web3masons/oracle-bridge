@@ -13,7 +13,7 @@ const Action = ({ action, bridge }) => {
         fileName={`storage-proof-${action.id}.json`}
       >
         {{
-          type: action.actionType == 1 ? 'Deposit' : 'Burn',
+          type: action.actionType === 1 ? 'Deposit' : 'Burn',
           amount: action.amount.toNumber(),
           receiver: action.receiver,
           proofBlockNumber: action.proof && action.block.number,
@@ -22,6 +22,7 @@ const Action = ({ action, bridge }) => {
       </Json>
       {!action.proof && (
         <button
+          type="button"
           onClick={() => {
             bridge.generateProof(action.id, bridge.blockNumber - 1);
           }}

@@ -1,7 +1,6 @@
 import useBridge from '../hooks/useBridge';
 import Action from './Action';
 import ChainStatus from './ChainStatus';
-import Json from './Json';
 
 const defaults = {
   chainName: 'ETC',
@@ -15,17 +14,34 @@ const Chain = props => {
   return (
     <div className="chain" style={{ background: `rgba(${bridge.color},0.1)` }}>
       <ChainStatus bridge={bridge} />
+      {!bridge.initialized && (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              const peer = prompt('Enter Peer Address:');
+              const wrapper = prompt('Enter Wrapper Address:');
+              bridge.initialize(peer, wrapper);
+            }}
+          >
+            Initialize!
+          </button>
+          <br />
+        </>
+      )}
       <button
+        type="button"
         onClick={() => {
-          bridge.mine(parseInt(prompt('How many blocks to mine?', 1)));
+          bridge.mine(parseInt(prompt('How many blocks to mine?', 1), 10));
         }}
       >
         Mine
       </button>
       <br />
       <button
+        type="button"
         onClick={() => {
-          const height = parseInt(prompt('Enter Block Number:'));
+          const height = parseInt(prompt('Enter Block Number:'), 10);
           const hash = prompt('Enter Block Hash:');
           bridge.createCheckpoint(height, hash);
         }}
@@ -34,9 +50,12 @@ const Chain = props => {
       </button>
       <br />
       <button
-        onClick={() =>
-          bridge.deposit(parseInt(prompt('Enter Deposit Amount', 42)))
-        }
+        type="button"
+        onClick={() => {
+          const amount = parseInt(prompt('Enter Deposit Amount:', 42), 10);
+          const to = prompt('Enter Receipient Address:');
+          bridge.deposit(amount, to);
+        }}
       >
         Despoit
       </button>
@@ -63,8 +82,9 @@ const Chain = props => {
       />
       <br />
       <button
+        type="button"
         onClick={() => {
-          bridge.burn(parseInt(prompt('Enter Burn Amount', 42)));
+          bridge.burn(parseInt(prompt('Enter Burn Amount', 42), 10));
         }}
       >
         Burn

@@ -1,15 +1,20 @@
 module.exports = {
   env: {
-    browser: true,
+    browser: true
   },
   extends: ['plugin:react/recommended', 'airbnb', 'nextjs'],
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     },
     ecmaVersion: 12,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   plugins: ['react'],
-  rules: {},
-}
+  rules: {
+    'no-use-before-define': [0],
+    'new-cap': [0],
+    'no-await-in-loop': [0],
+    'no-alert': [0]
+  }
+};

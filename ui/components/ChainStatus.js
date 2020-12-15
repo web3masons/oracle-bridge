@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import Address from './Address';
 import FormatBalance from './FormatBalance';
-import Json from './Json';
 
 const ChainStatus = ({ bridge }) => {
   return (

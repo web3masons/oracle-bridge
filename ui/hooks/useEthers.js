@@ -35,7 +35,7 @@ const useEthers = ({ endpoint, users }) => {
   }
 
   async function mine(blocks = 1) {
-    for (let i = 0; i < blocks; i++) {
+    for (let i = 0; i < blocks; i += 1) {
       await wallets.current[0].sendTransaction({
         to: ethers.constants.AddressZero,
         value: 1

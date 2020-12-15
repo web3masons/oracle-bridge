@@ -7,9 +7,14 @@ async function main() {
   const oracleBridge = await OracleBridge.deploy()
   await oracleBridge.deployed()
 
-  await oracleBridge.init(oracleBridge.address, wrapper.address)
+  if (!process.env.NO_INIT) {
+    await oracleBridge.init(oracleBridge.address, wrapper.address)
+  } else {
+    console.log("Contract NOT initialized, you must do this manually!")
+  }
 
-  console.log("Deployed to:", oracleBridge.address);
+  console.log("OracleBridge:", oracleBridge.address);
+  console.log("Wrapper:", wrapper.address);
 }
 
 main()

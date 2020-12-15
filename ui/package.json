@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.0.23",
     "next": "10.0.3",
     "react": "17.0.1",

@@ -67,7 +67,7 @@ const Bridge = () => {
           onProofUpdate={onProofUpdate}
           color="0,0,255"
           chainName="Nana"
-          contractAddress="0x48b15273b31b111dE0421081188465065eD21E4f"
+          contractAddress="0x2fB5C52E0df7359530313aE4fDC7f6b7c2E29287"
           endpoint="http://localhost:4444"
           // oracle, depositer, burner, withdrawer
           users={[users.oracle, users.dave, users.emma, users.fred]}
