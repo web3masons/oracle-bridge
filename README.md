@@ -2,6 +2,8 @@
 
 A proof of concept EVM to EVM cross-chain communication protocol using EVM Storage Proofs and Oracles, for a custody-free token bridge.
 
+Watch the youtube demo: https://youtu.be/H9n8z5Ge9cs
+
 ![Oracle Brdige Diagram](https://github.com/web3masons/oracle-bridge/blob/master/diagram.png)
 
 ## Overview
