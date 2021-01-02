@@ -34,7 +34,7 @@ Let's imagine we want to 'send' ETC to ETH mainnet - really we are just locking 
 1. Every 100 blocks, an oracle reports the block hash of ETH to `ETC-OracleBridge` (on Etheruem Classic)
 1. After 1000 confimations, the user can relay the Storage Proof to the `ETC-OracleBridge` contract, which is verified by the contract and ETC can be redeemed by the user
 
-A basic contract set, test suite and ~~TODO: Web UI~~ is included in this repository to demonstrate the above system.
+A basic contract set, test suite and Web UI is included in this repository to demonstrate the above system.
 
 Again, this is the most basic example and there is room for many improvements and optimisations, such as:
 
